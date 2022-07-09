@@ -39,7 +39,7 @@ public class BatchConfig {
 					@Override
 					public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext)
 							throws Exception {
-						System.out.println("Ola , mundo..");
+						System.out.println("Ola , mundo.");
 						return RepeatStatus.FINISHED;
 					}})
 				.build();
