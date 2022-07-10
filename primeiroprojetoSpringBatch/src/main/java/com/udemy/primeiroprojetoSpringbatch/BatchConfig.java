@@ -6,12 +6,16 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 
 @EnableBatchProcessing
 @Configuration
@@ -27,21 +31,27 @@ public class BatchConfig {
 		return jobBuilderFactory
 				.get("imprimeOlaJob")
 				.start(imprimeOlaStep())
+				.incrementer(new RunIdIncrementer())
 				.build();
 	}
 
 	private Step imprimeOlaStep() {
-		// TODO Auto-generated method stub
 		return stepBuilderFactory
 				.get("imprimeOlaStep")
-				.tasklet(new Tasklet() {
-
-					@Override
-					public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext)
-							throws Exception {
-						System.out.println("Ola , mundo.");
-						return RepeatStatus.FINISHED;
-					}})
+				.tasklet(imprimeOlaTasklet(null))
 				.build();
+	}
+
+	@Bean
+	@StepScope
+	public Tasklet imprimeOlaTasklet(@Value("#{JobParameters['nomeExecutor']}") String nome) {
+		return new Tasklet() {
+
+			@Override
+			public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext)
+					throws Exception {
+				System.out.println(String.format("Ola, %s!", nome));
+				return RepeatStatus.FINISHED;
+			}};
 	}
 }
